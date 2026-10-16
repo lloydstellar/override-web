@@ -1,0 +1,5 @@
+# scores belong to the players, never to the repo
+*-scores.json
+# no open-source license, see NOTICE
+samjs.min.js
+.DS_Store

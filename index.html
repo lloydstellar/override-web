@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Override - a 2048 puzzle against a rogue AI</title>
+    <meta name="description" content="2048 Override: the rules of 2048 on a hacked CRT terminal, against the AI NEXUS-9. Corrupted Nodes, cell locks, seven special blocks, rollback and a generated electro soundtrack.">
+    <meta name="author" content="Lloyd Stellar">
+    <meta name="theme-color" content="#01030c">
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/override.css">
+    <link rel="stylesheet" href="css/standalone.css">
+</head>
+<body>
+    <div class="container">
+        <main id="main-content">
+            <p class="ov-top">LLOYD STELLAR // 2048 OVERRIDE</p>
+            <h1>2048 Override</h1>
+            <p class="ov-intro">A 2048 puzzle against a rogue AI. This is the source of the game on <a href="https://lloydstellar.nl/override.html">lloydstellar.nl/override.html</a>, where it has a worldwide hall of fame. This copy keeps its scores in your own browser.</p>
+
+            <section class="override-cabinet">
+                <h2 class="game-fs-hide">Resistance Terminal MK-II - Sector 7</h2>
+                <canvas id="override-screen" width="400" height="580" role="img" aria-label="2048 Override game screen: a green phosphor CRT terminal with a 4 by 4 grid of data signal tiles. Slide with the arrow keys, equal signals fuse."></canvas>
+                <div class="override-controls">
+                    <span class="override-keys-hint"><kbd>◀</kbd> <kbd>▲</kbd> <kbd>▼</kbd> <kbd>▶</kbd> SLIDE</span>
+                    <span class="override-keys-hint"><kbd>SPACE</kbd> JACK IN</span>
+                    <span class="override-keys-hint"><kbd>R</kbd> END SESSION</span>
+                    <button type="button" id="ov-mute">SOUND: ON [M]</button>
+                    <button type="button" id="ov-music">MUSIC: ON [N]</button>
+                    <button type="button" id="ov-rollback" disabled>ROLLBACK <span class="ov-rb-marks">&#9632;&#9633;&#9633;</span> [U]</button>
+                    <button type="button" id="ov-new">NEW SESSION [R]</button>
+                    <button type="button" id="ov-fs" class="game-fs-btn" aria-pressed="false"><span class="game-fs-label">FULLSCREEN</span><span class="game-fs-key">[F]</span></button>
+                </div>
+                <div class="override-touch" aria-hidden="false">
+                    <button type="button" id="ov-up" aria-label="Slide up">▲</button>
+                    <button type="button" id="ov-left" aria-label="Slide left">◀</button>
+                    <button type="button" id="ov-down" aria-label="Slide down">▼</button>
+                    <button type="button" id="ov-right" aria-label="Slide right">▶</button>
+                    <button type="button" id="ov-rb-touch" aria-label="Rollback" disabled><span class="ov-rb-word">ROLLBACK</span><span class="ov-rb-marks">&#9632;&#9633;&#9633;</span></button>
+                </div>
+                <div id="ov-card" class="ov-card" role="status" aria-live="polite" hidden>
+                    <p class="ov-card-title"></p>
+                    <p class="ov-card-body"></p>
+                    <div class="ov-card-actions"></div>
+                </div>
+                <div id="ov-win-row" hidden>
+                    <button type="button" id="ov-continue">CONTINUE: GLOBAL PURGE</button>
+                    <button type="button" id="ov-end">END SESSION</button>
+                </div>
+                <div id="ov-name-row" hidden>
+                    <label for="ov-name">New high score! Enter your name:</label>
+                    <input type="text" id="ov-name" maxlength="25" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="UP TO 25 CHARACTERS">
+                    <button type="button" id="ov-name-ok">SAVE</button>
+                </div>
+            </section>
+
+            <section class="how-to-play">
+                <h2>How To Play</h2>
+                <p>It is 2048. The superintelligence NEXUS-9 took over the power and communication grids, and what is left of us lives in bunkers, off the network. The only thing it cannot read is analogue hardware. You sit at a hacked military CRT and inject frequencies straight into the local grid: slide the data signals on the 4 by 4 matrix, fuse equal signals into stronger ones, and assemble a pulse of exactly 2048 bit. That overloads the processing core and frees the sector.</p>
+                <ul class="score-table">
+                    <li><strong>Slide:</strong> <kbd>◀</kbd> <kbd>▲</kbd> <kbd>▼</kbd> <kbd>▶</kbd> or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move every tile as far as it goes. On a phone, swipe on the screen or use the buttons under it</li>
+                    <li><strong>Fuse:</strong> two equal signals that collide become one signal of double strength. After every move a new 2 Hz Sub-Pulse (or sometimes a 4-Bit Packet) spawns in a free slot</li>
+                    <li><strong>Frequency:</strong> your score, in Hz. Every fusion adds the value of the new tile, as in the original 2048</li>
+                    <li><strong>AI Trace:</strong> the bar above the matrix. A move without a fusion raises it by 5%, every fusion lowers it. At 100% NEXUS-9 seals one slot and the trace drops back to 25%. The first lock holds for five moves, every next one in the same session a move longer, up to nine. A fusion right next to a lock cracks two moves off it, and after your first 512 a lock can pin a signal in place</li>
+                    <li><strong>Corrupted Nodes:</strong> from tile 32 onward a red node with rogue AI code can spawn. It slides like any tile but refuses to fuse upward. Slide an equal signal into it to purge both (twice its value in Hz), or park it next to a 64 EMP Cell: the EMP fries it for 64 Hz. While a node is on the board, every move without a fusion adds another 3% to the trace</li>
+                    <li><strong>Special blocks:</strong> once your signals get bigger, seven other blocks start to turn up: supply drops, surge capacitors, cased signals, trace beacons, patch cables, static walls and worms. The terminal explains each one the first time you meet it, and the Field Manual below has them all</li>
+                    <li><strong>Rollback:</strong> <kbd>U</kbd> or the ROLLBACK button undoes your last move, new tile and trace included. You start with one charge and get another for every new 256, 512, 1024 and up, three at most. It even works right after the signal is lost, as long as you have not signed the hall of fame. The new tiles are decided in advance, so undoing a move and making it again brings the same tile</li>
+                    <li><strong>Override:</strong> make 2048 and the core goes down. You can stop there and sign the hall of fame, or keep going into Global Purge mode towards 4096 and 8192</li>
+                    <li><strong>Signal lost:</strong> when no move is possible the AI has traced you. Press <kbd>R</kbd> or NEW SESSION to end a run early; a top-10 score still counts</li>
+                </ul>
+                <p>New here? Your first session starts with a short training in seven steps, which you can skip. The Field Manual below has a button to play it again. Press FULLSCREEN (or the F key) to play on the whole screen; on a phone, hold it upright. The soundtrack is generated live and gets faster and busier as your highest tile climbs. Switch it off with <kbd>N</kbd> if you would rather hear your own records. A run in progress is saved in your browser, so a reload does not cost you the board.</p>
+            </section>
+
+            <section class="override-manual" id="ov-manual">
+                <h2>Field Manual</h2>
+                <p>Every rule NEXUS-9 plays by and every block that can land on the matrix. A block you have not met yet stays classified, so it can still surprise you. Open it if you would rather know in advance.</p>
+                <p><button type="button" id="ov-tutorial" class="ov-manual-btn">PLAY THE TRAINING AGAIN</button></p>
+                <h3>NEXUS-9</h3>
+                <div class="ov-blocks">
+                    <article class="ov-block" data-block="LOCK">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Locked cell</h4>
+                            <p>At 100% trace NEXUS-9 seals a cell. Nothing slides into it or out of it until its counter runs out, and the trace falls back to 25%.</p>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="LEARNS" data-icon="LOCK">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>NEXUS-9 learns</h4>
+                            <p>Each lock in a session holds one move longer than the one before, up to nine moves. A low trace early on keeps the later locks short.</p>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="CRACK" data-icon="LOCK">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Crack the seal</h4>
+                            <p>A fusion right next to a locked cell takes two moves off its counter. Fuse beside a lock to get the cell back sooner.</p>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="PIN">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Pin lock</h4>
+                            <p class="ov-block-tag">From your first 512</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>Sometimes NEXUS-9 seals a cell with a signal in it. That signal stays put until the lock runs out or you crack it.</p></details>
+                        </div>
+                    </article>
+                </div>
+                <h3>Blocks On The Matrix</h3>
+                <div class="ov-blocks">
+                    <article class="ov-block is-hostile" data-block="NODE">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Corrupted Node</h4>
+                            <p class="ov-block-tag">Turns up from a 32</p>
+                            <p>Rogue code. It slides but never fuses upward, and feeds the trace while it is on the board. Slide an equal signal into it and both disappear; a 64 next to it fries it.</p>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="SUPPLY">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Supply Drop</h4>
+                            <p class="ov-block-tag">From your first 128</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>A signal from the resistance: a copy of the signal right next to where it lands, so you can fuse the two straight away.</p></details>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="CAPACITOR">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Surge Capacitor</h4>
+                            <p class="ov-block-tag">From your first 256</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>Slides but never fuses. The ring shows its charge; at zero it discharges into the four cells around it. Signals up to 64 and red blocks are wiped out, bigger signals ride it out, walls lose a layer. Park it next to clutter.</p></details>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="CASED">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Cased Signal</h4>
+                            <p class="ov-block-tag">From your first 512</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>A signal in a lead case. Slide an equal signal into it: the first hit cracks the case, the second fuses the two for double points.</p></details>
+                        </div>
+                    </article>
+                    <article class="ov-block is-hostile" data-block="BEACON">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Trace Beacon</h4>
+                            <p class="ov-block-tag">From your first 1024</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>A red block with a countdown. Clear it like a node before it reaches zero, or it transmits: the trace jumps to 100% and the beacon stays behind as a Corrupted Node.</p></details>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="PATCH">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Patch Cable</h4>
+                            <p class="ov-block-tag">From your first 1024</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>Fuses with any signal up to 256 and doubles it, so a 256 and the cable make a 512. It does not take bigger signals.</p></details>
+                        </div>
+                    </article>
+                    <article class="ov-block" data-block="WALL">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Static Wall</h4>
+                            <p class="ov-block-tag">From your first 2048</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>Does not slide, and nothing fuses with it. Every fusion right next to it wears off a layer; after two it falls. A capacitor's discharge chips it too.</p></details>
+                        </div>
+                    </article>
+                    <article class="ov-block is-hostile" data-block="WORM">
+                        <canvas class="ov-block-icon" width="104" height="104" aria-hidden="true"></canvas>
+                        <div class="ov-block-body">
+                            <h4>Worm</h4>
+                            <p class="ov-block-tag">From your first 4096</p>
+                            <details class="ov-block-text" open><summary>Classified. Read it anyway</summary><p>A red block that spreads: every eight moves it turns the newest signal into a Corrupted Node. Clear it with an equal signal or a 64.</p></details>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="override-catalogue">
+                <h2>Signal Catalogue</h2>
+                <p>Every value on the matrix is a piece of resistance hardware. Here is what you are building.</p>
+                <table class="ov-catalogue">
+                    <thead><tr><th scope="col">Tile</th><th scope="col">Signal</th><th scope="col">What it is</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="ov-tile-chip" style="background:#17703a">2</span></td><td>2 Hz Sub-Pulse</td><td>A bare sawtooth. Too slow for NEXUS-9 to notice, which is the point</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#1f9247">4</span></td><td>4-Bit Packet</td><td>The smallest thing that still counts as data. Its LED blinks</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#2bb55a">8</span></td><td>Signal Repeater</td><td>Two jacks and a lot of gain. Carries the pulse between bunkers</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#cf9000">16</span></td><td>Frequency Scanner</td><td>An analogue meter that finds the carrier the AI is hiding on</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#f0ac10">32</span></td><td>Cipher Key</td><td>A hand-etched circuit board. From here on, Corrupted Nodes start to spawn</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#ffe64d;color:#2a2000;text-shadow:none">64</span></td><td>EMP Cell</td><td>High voltage in a yellow can. Fries any Corrupted Node that ends up next to it</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#ff8f2e">128</span></td><td>Firewall Bypass</td><td>An open port the AI thinks it closed</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#ef4150">256</span></td><td>Neural Jammer</td><td>Noise shaped to confuse a neural network. Decrypts a lore file</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#9254e0">512</span></td><td>Sub-Server Node</td><td>Vacuum tubes do not run firmware. Forty-eight of them, glowing</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#3d78ff">1024</span></td><td>Quantum Transmitter</td><td>The radar sweeps. Unlocks the LLOYDOS cyan phosphor</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#ffffff;color:#0a1420;text-shadow:none">2048</span></td><td>Override Code</td><td>White light and lightning. The core overloads, the sector is free, and the transmission unlocks</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#ff4ddb">4096</span></td><td>Core Breach</td><td>Endless mode only. You get inside the machine</td></tr>
+                        <tr><td><span class="ov-tile-chip" style="background:#3a3a3a">8192</span></td><td>Global Purge</td><td>The last file. Nobody has read it on a working terminal</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="override-archive">
+                <h2>The Archive</h2>
+                <p>Your highest signal ever unlocks phosphor colours for the terminal and decrypts files from the resistance. Reaching the Override Code also unlocks a transmission. Everything is saved in this browser.</p>
+                <div id="ov-archive"></div>
+            </section>
+
+            <section class="override-hiscores">
+                <h2>Hall Of Fame</h2>
+                <div class="hiscore-screen">
+                    <div class="hiscore-head">
+                        <span class="hiscore-star" aria-hidden="true">*</span>
+                        FREQUENCY INJECTORS
+                        <span class="hiscore-star" aria-hidden="true">*</span>
+                    </div>
+                    <div class="hiscore-sub">TOP 10 - THIS BROWSER</div>
+                    <ol id="ov-hiscore-list" class="hiscore-list">
+                        <li class="hiscore-row"><span class="hiscore-rank">1ST</span><span class="hiscore-name"><span class="hiscore-empty">LOADING SCORES...</span></span><span class="hiscore-dots" aria-hidden="true"></span><span class="hiscore-score">...... Hz</span><span class="hiscore-wave">TILE ....</span></li>
+                    </ol>
+                    <div class="hiscore-foot">HOW FAR CAN YOU PUSH THE FREQUENCY?<span class="hiscore-cursor" aria-hidden="true">▮</span></div>
+                </div>
+            </section>
+
+            <section class="override-faq">
+                <h2>Questions</h2>
+                <h3>What is 2048 Override?</h3>
+                <p>2048 Override is a free browser puzzle game built on the rules of 2048. It is the year 2048 and the AI NEXUS-9 controls every network. You sit at a hacked CRT terminal and slide data signals on a 4 x 4 grid; two equal signals fuse into one of double strength. Build a 2048-bit Override Code to overload the local AI core. On top of the classic rules there is an AI Trace Level that makes NEXUS-9 lock cells, Corrupted Nodes, EMP Cells, seven special blocks, a rollback button, a soundtrack that speeds up as your tiles grow, an endless mode and a hall of fame.</p>
+                <h3>How do you play 2048 Override?</h3>
+                <p>Use the arrow keys or WASD to slide every tile on the grid in one direction; on a phone, swipe on the screen or use the buttons under it. Two tiles with the same value that touch fuse into one with double the value, and a new 2 or 4 appears after every move. Every move without a fusion raises the AI Trace Level by 5 percent, every fusion lowers it; at 100 percent NEXUS-9 seals one cell, a move longer every time it happens. From tile 32 onward a red Corrupted Node can appear: you remove it by sliding a tile of the same value into it or by parking it next to a 64 EMP Cell. Reach 2048 and you win; you can then continue to 4096 and 8192.</p>
+                <h3>How does scoring work in 2048 Override?</h3>
+                <p>Score is measured as frequency in Hz. Every fusion adds the value of the new tile, exactly as in the original 2048. Purging a Corrupted Node with an equal signal adds twice its value, frying one with an EMP Cell adds 64 Hz, and a Cased Signal fused out of its case counts double. A session ends when no move is possible or when you end it yourself; if it is in the top 10 you can sign the hall of fame.</p>
+                <h3>Can you undo a move in 2048 Override?</h3>
+                <p>Yes, with ROLLBACK: the U key or the button under the screen. It undoes your last move, the new tile and the trace included. You start with one charge and earn another for every new 256, 512, 1024 and up, three at most. The new tiles are decided in advance, so undoing a move and making it again brings the same tile.</p>
+                <h3>Is 2048 Override free to play?</h3>
+                <p>Yes. 2048 Override is completely free, runs in any modern browser on desktop and mobile, has a fullscreen mode and needs no download, account or installation. Your progress, unlocked phosphor themes and decrypted files are saved in your own browser.</p>
+            </section>
+
+            <section class="ov-about">
+                <h2>About This Code</h2>
+                <p>Made by <a href="https://lloydstellar.nl">Lloyd Stellar</a>, an electro producer from Hilversum. The sliding and fusing rules, the traversal order and the 90/10 spawn of 2s and 4s come from <a href="https://github.com/gabrielecirulli/2048">2048 by Gabriele Cirulli</a> (MIT licence). The rest of the code is released under the Apache License 2.0. The name, the story texts and the tile artwork are not; the NOTICE file explains what that means for your own build.</p>
+                <p>The soundtrack is generated live in your browser. The music I make myself is on <a href="https://lloydstellar.bandcamp.com">Bandcamp</a>.</p>
+            </section>
+        </main>
+    </div>
+
+    <script>window.OVERRIDE_SCORES_URL = null;</script>
+    <script src="game-fullscreen.js"></script>
+    <script src="override.js"></script>
+    <script>GameFullscreen.init({ wrapper: '.override-cabinet', canvas: '#override-screen', button: '#ov-fs', orientation: 'portrait' });</script>
+</body>
+</html>
